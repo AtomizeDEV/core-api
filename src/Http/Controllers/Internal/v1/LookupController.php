@@ -176,7 +176,7 @@ class LookupController extends Controller
     public function fleetbaseBlog(Request $request)
     {
         $limit = $request->integer('limit', 6);
-        $rssUrl = 'https://www.fleetbase.io/post/rss.xml';
+        $rssUrl = 'https://fastlane.ee/feed/';
         $rss = simplexml_load_file($rssUrl);
         $posts = [];
 
