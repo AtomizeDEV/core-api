@@ -95,7 +95,7 @@ class Utils
      */
     public static function assetFromS3(string $path, $region = null): string
     {
-        return static::fromS3($path, 'flb-assets', $region);
+        return static::fromS3($path, 'fastlane-fastlane-media', $region);
     }
 
     /**
