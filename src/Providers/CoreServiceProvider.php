@@ -349,7 +349,6 @@ class CoreServiceProvider extends ServiceProvider
     private function registerNotifications()
     {
         NotificationRegistry::register([
-            \Fleetbase\Notifications\UserCreated::class,
             \Fleetbase\Notifications\UserAcceptedCompanyInvite::class,
         ]);
     }
