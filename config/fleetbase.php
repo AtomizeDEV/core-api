@@ -23,9 +23,6 @@ return [
             'api_key' => env('IPINFO_API_KEY')
         ]
     ],
-    'extensions' => [
-        'repository' => env('FLEETBASE_REPOSITORY_HOST', 'https://extensions.fleetbase.io')
-    ],
     'connection' => [
         'db' => env('DB_CONNECTION', 'mysql'),
         'sandbox' => env('SANDBOX_DB_CONNECTION', 'sandbox')
