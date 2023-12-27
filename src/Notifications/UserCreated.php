@@ -58,7 +58,7 @@ class UserCreated extends Notification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(User $user, Company $company)
+    public function __construct(User $user, ?Company $company)
     {
         $this->user           = $user;
         $this->company        = $company;
