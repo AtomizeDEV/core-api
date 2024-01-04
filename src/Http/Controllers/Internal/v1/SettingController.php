@@ -163,7 +163,7 @@ class SettingController extends Controller
             'from',
             [
                 'address' => Utils::getDefaultMailFromAddress(),
-                'name'    => 'Fleetbase',
+                'name'    => 'Fastlane',
             ]
         );
         $smtp    = $request->input('smtp', []);
@@ -382,7 +382,7 @@ class SettingController extends Controller
      */
     public function testNotificationChannelsConfig(Request $request)
     {
-        $title    = $request->input('title', 'Hello World from Fleetbase 🚀');
+        $title    = $request->input('title', 'Hello World from Fastlane 🚀');
         $message  = $request->input('message', 'This is a test push notification!');
         $apnToken = $request->input('apnToken');
         $fcmToken = $request->input('fcmToken');
@@ -585,7 +585,7 @@ class SettingController extends Controller
         try {
             $sent = $socketClusterClient->send($channel, [
                 'message' => 'Hello World',
-                'sender'  => 'Fleetbase',
+                'sender'  => 'Fastkane',
             ]);
             $response = $socketClusterClient->response();
         } catch (\WebSocket\ConnectionException $e) {
