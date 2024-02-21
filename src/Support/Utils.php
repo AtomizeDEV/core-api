@@ -1122,7 +1122,7 @@ class Utils
      *
      * @return stdClass
      */
-    public static function lookupIp(?string $ip = null)
+    public static function lookupIp(string $ip = null)
     {
         if ($ip === null) {
             $ip = request()->ip();
@@ -1440,17 +1440,16 @@ class Utils
     public static function resolveSubject(string $publicId)
     {
         $resourceMap = [
-            'store'    => 'store:storefront',
-            'product'  => 'store:storefront',
-            'order'    => 'order',
-            'customer' => 'contact',
-            'contact'  => 'contact',
+            'store'    => 'storefront:store',
+            'product'  => 'storefront:product',
+            'order'    => 'fleet-ops:order',
+            'customer' => 'fleet-ops:contact',
+            'contact'  => 'fleet-ops:contact',
         ];
 
         list($type) = explode('_', $publicId);
 
         $modelNamespace = static::getMutationType($resourceMap[$type]);
-
         if ($modelNamespace) {
             return app($modelNamespace)->where('public_id', $publicId)->first();
         }
@@ -1497,7 +1496,7 @@ class Utils
      *
      * @return \Fleetbase\Models\File|null
      */
-    public static function urlToStorefrontFile($url, $type = 'source', ?Model $owner = null)
+    public static function urlToStorefrontFile($url, $type = 'source', Model $owner = null)
     {
         if (!is_string($url)) {
             return null;

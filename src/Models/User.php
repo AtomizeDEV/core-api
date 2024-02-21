@@ -3,7 +3,9 @@
 namespace Fleetbase\Models;
 
 use Fleetbase\Casts\Json;
+use Fleetbase\Notifications\UserCreated;
 use Fleetbase\Notifications\UserInvited;
+use Fleetbase\Support\NotificationRegistry;
 use Fleetbase\Support\Utils;
 use Fleetbase\Traits\Expandable;
 use Fleetbase\Traits\Filterable;
@@ -104,6 +106,7 @@ class User extends Authenticatable
     protected $fillable = [
         'uuid',
         'public_id',
+        'company_uuid',
         '_key',
         'avatar_uuid',
         'username',
@@ -127,7 +130,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $guarded = ['password', 'type', 'company_uuid'];
+    protected $guarded = ['password', 'type'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -204,23 +207,53 @@ class User extends Authenticatable
     /**
      * Set the company for this user.
      */
-    public function assignCompany(Company $company)
+    public function assignCompany(Company $company): User
     {
         $this->company_uuid = $company->uuid;
+
+        // Create company user record
+        if (CompanyUser::where(['company_uuid' => $company->uuid, 'user_uuid' => $this->uuid])->doesntExist()) {
+            CompanyUser::create(['company_uuid' => $company->uuid, 'user_uuid' => $this->uuid, 'status' => $this->status]);
+        }
+
+        // Determine if user should receive invite to join company
+        if ($this->isNotAdmin() && !$this->isCompanyOwner($comapny)) {
+            // Invite user to join company
+            $this->sendInviteFromCompany($company);
+
+            // Notify the company owner a user has been created
+            NotificationRegistry::notify(UserCreated::class, $this, $company);
+        }
+
         $this->save();
+
+        return $this;
+    }
+
+    /**
+     * Checks if user is the owner of the company.
+     */
+    public function isCompanyOwner(Company $company): bool
+    {
+        return $this->uuid === $company->owner_uuid;
     }
 
     /**
      * Set the company for this user.
      */
-    public function assignCompanyFromId(?string $id)
+    public function assignCompanyFromId(?string $id): User
     {
-        if (!Str::isUuid($id)) {
-            return;
+        if (!Str::isUuid($id) || !Utils::isPublicId($id)) {
+            return $this;
         }
 
-        $this->company_uuid = $id;
-        $this->save();
+        // Get company record
+        $company = Company::where('uuid', $id)->orWhere('public_id', $id)->first();
+        if ($comapny) {
+            return $this->assignCompany($comapny);
+        }
+
+        return $this;
     }
 
     /**
@@ -562,7 +595,7 @@ class User extends Authenticatable
      *
      * @return bool returns true if the invitation is successfully sent, false otherwise
      */
-    public function sendInviteFromCompany(?Company $company = null): bool
+    public function sendInviteFromCompany(Company $company = null): bool
     {
         if ($company === null) {
             $this->load(['company']);
@@ -575,12 +608,7 @@ class User extends Authenticatable
         }
 
         // make sure user isn't already invited
-        $isAlreadyInvited = Invite::where([
-            'company_uuid' => $company->uuid,
-            'subject_uuid' => $company->uuid,
-            'protocol'     => 'email',
-            'reason'       => 'join_company',
-        ])->whereJsonContains('recipients', $this->email)->exists();
+        $isAlreadyInvited = Invite::isAlreadySentToJoinCompany($this, $company);
         if ($isAlreadyInvited) {
             return false;
         }
@@ -637,5 +665,51 @@ class User extends Authenticatable
     public function isNotVerified(): bool
     {
         return $this->isVerified() === false;
+    }
+
+    public static function applyUserInfoFromRequest($request, array $attributes = []): array
+    {
+        // Lookup user default details
+        try {
+            $info = \Fleetbase\Support\Http::lookupIp($request);
+        } catch (\Exception $e) {
+        }
+
+        if ($info) {
+            $attributes['country']    = data_get($info, 'country_code');
+            $attributes['ip_address'] = data_get($info, 'ip', $request->ip());
+            $tzInfo                   = data_get($info, 'time_zone.name', $request->input('timezone'));
+            if ($tzInfo) {
+                $attributes['timezone'] = $tzInfo;
+            }
+            $attributes['meta'] = [
+                'areacode'   => data_get($info, 'calling_code'),
+                'currency'   => data_get($info, 'currency.code'),
+                'language'   => data_get($info, 'languages.0'),
+                'country'    => data_get($info, 'country_name'),
+                'contintent' => data_get($info, 'continent_name'),
+                'latitude'   => data_get($info, 'latitude'),
+                'longitude'  => data_get($info, 'longitude'),
+            ];
+        }
+
+        return $attributes;
+    }
+
+    public function setUserInfoFromRequest($request, bool $save = false): User
+    {
+        $userInfoAttributes = static::getUserInfoFromRequest($request);
+
+        foreach ($userInfoAttributes as $key => $value) {
+            if ($this->isFillable($key)) {
+                $this->setAttribute($key, $value);
+            }
+        }
+
+        if ($save) {
+            $this->save();
+        }
+
+        return $this;
     }
 }
