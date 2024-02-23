@@ -9,7 +9,6 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -121,7 +120,6 @@ class CoreServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../../views', 'fleetbase');
         $this->registerCustomBladeComponents();
         $this->mergeConfigFromSettings();
-        $this->addServerIpAsAllowedOrigin();
     }
 
     /**
@@ -169,7 +167,6 @@ class CoreServiceProvider extends ServiceProvider
             'services.google_maps' => ['api_key' => 'GOOGLE_MAPS_API_KEY', 'locale' => 'GOOGLE_MAPS_LOCALE'],
             'services.twilio'      => ['sid' => 'TWILIO_SID', 'token' => 'TWILIO_TOKEN', 'from' => 'TWILIO_FROM'],
             'services.sentry'      => ['dsn' => 'SENTRY_DSN'],
-            'firebase.app'         => ['credentials' => 'FIREBASE_CREDENTIALS'],
         ];
 
         $settings = [
@@ -252,7 +249,7 @@ class CoreServiceProvider extends ServiceProvider
 
                         $envValue         = data_get($value, $configEnvKey);
                         $doesntHaveEnvSet = empty(env($envKey));
-                        $hasValue         = !empty($envValue);
+                        $hasValue         = !empty($envValue) && !is_array($envValue);
 
                         // only set if env variable is not set already
                         if ($doesntHaveEnvSet && $hasValue) {
@@ -276,45 +273,6 @@ class CoreServiceProvider extends ServiceProvider
         if (empty(config('mail.from.address'))) {
             config()->set('mail.from.address', Utils::getDefaultMailFromAddress());
         }
-    }
-
-    /**
-     * Add the server's IP address to the CORS allowed origins.
-     *
-     * This function retrieves the server's IP address and adds it to the
-     * list of CORS allowed origins in the Laravel configuration. If the
-     * server's IP address is already in the list, the function doesn't
-     * add it again.
-     *
-     * @return void
-     */
-    public function addServerIpAsAllowedOrigin()
-    {
-        $cacheKey               = 'server_public_ip';
-        $cacheExpirationMinutes = 60 * 60 * 24 * 30;
-
-        // Check the cache first
-        $serverIp = Cache::get($cacheKey);
-
-        // If not cached, fetch the IP and store it in the cache
-        if (!$serverIp) {
-            $serverIp = trim(shell_exec('dig +short myip.opendns.com @resolver1.opendns.com'));
-
-            if (!$serverIp) {
-                return;
-            }
-
-            Cache::put($cacheKey, $serverIp, $cacheExpirationMinutes);
-        }
-
-        $allowedOrigins = config('cors.allowed_origins', []);
-        $serverIpOrigin = "http://{$serverIp}:4200";
-
-        if (!in_array($serverIpOrigin, $allowedOrigins, true)) {
-            $allowedOrigins[] = $serverIpOrigin;
-        }
-
-        config(['cors.allowed_origins' => $allowedOrigins]);
     }
 
     /**
@@ -461,7 +419,7 @@ class CoreServiceProvider extends ServiceProvider
      *     $schedule->command('your-package:command')->daily();
      * });
      */
-    public function scheduleCommands(callable $callback = null): void
+    public function scheduleCommands(?callable $callback = null): void
     {
         $this->app->booted(function () use ($callback) {
             $schedule = $this->app->make(Schedule::class);
