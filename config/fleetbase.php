@@ -2,7 +2,7 @@
 
 /**
  * -------------------------------------------
- * Fleetbase Core API Configuration
+ * Fastlane Core API Configuration
  * -------------------------------------------
  */
 return [
@@ -14,7 +14,7 @@ return [
         ]
     ],
     'console' => [
-        'host' => env('CONSOLE_HOST', 'fleetbase.io'),
+        'host' => env('CONSOLE_HOST', 'fastlane.ee'),
         'subdomain' => env('CONSOLE_SUBDOMAIN'),
         'secure' => env('CONSOLE_SECURE', !app()->environment(['development', 'local']))
     ],
@@ -28,7 +28,7 @@ return [
         'sandbox' => env('SANDBOX_DB_CONNECTION', 'sandbox')
     ],
     'branding' => [
-        'logo_url' => 'https://flb-assets.s3.ap-southeast-1.amazonaws.com/static/fleetbase-logo.png',
-        'icon_url' => 'https://flb-assets.s3.ap-southeast-1.amazonaws.com/static/fleetbase-icon.png'
+        'logo_url' => 'https://fastlane-fastlane.s3.eu-central-1.amazonaws.com/images/icon-e2e9ff728993c2a78250bf060515b8cf.png',
+        'icon_url' => 'https://fastlane-fastlane.s3.eu-central-1.amazonaws.com/images/icon-e2e9ff728993c2a78250bf060515b8cf.png'
     ]
 ];
