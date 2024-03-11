@@ -1,6 +1,6 @@
 <?php
 
-namespace Fleetbase\Seeds;
+namespace Fleetbase\Seeders;
 
 use Fleetbase\Models\Category;
 use Fleetbase\Models\Type;
@@ -17,69 +17,69 @@ class ExtensionSeeder extends Seeder
     {
         $extensionTypes = [
             [
-                'name' => 'Config',
+                'name'        => 'Config',
                 'description' => 'Additional configurations for console resources.',
-                'key' => 'config',
-                'for' => 'extension'
+                'key'         => 'config',
+                'for'         => 'extension',
             ],
         ];
 
         $extensionCategories = [
             [
-                'name' => 'Logistics',
+                'name'        => 'Logistics',
                 'description' => '',
-                'for' => 'extension'
+                'for'         => 'extension',
             ],
             [
-                'name' => 'Security, Identity, & Compliance',
+                'name'        => 'Security, Identity, & Compliance',
                 'description' => '',
-                'for' => 'extension'
+                'for'         => 'extension',
             ],
             [
-                'name' => 'Shipping Industry',
+                'name'        => 'Shipping Industry',
                 'description' => '',
-                'for' => 'extension'
+                'for'         => 'extension',
             ],
             [
-                'name' => 'Data',
+                'name'        => 'Data',
                 'description' => '',
-                'for' => 'extension'
+                'for'         => 'extension',
             ],
             [
-                'name' => 'Accounting',
+                'name'        => 'Accounting',
                 'description' => '',
-                'for' => 'extension'
+                'for'         => 'extension',
             ],
             [
-                'name' => 'Inventory',
+                'name'        => 'Inventory',
                 'description' => '',
-                'for' => 'extension'
+                'for'         => 'extension',
             ],
             [
-                'name' => 'Developer Tools',
+                'name'        => 'Developer Tools',
                 'description' => '',
-                'for' => 'extension'
+                'for'         => 'extension',
             ],
         ];
 
         // create extension types
-        foreach($extensionTypes as $type) {
+        foreach ($extensionTypes as $type) {
             Type::firstOrCreate(
                 [
                     'name' => $type['name'],
-                    'for' => $type['for'],
-                ], 
+                    'for'  => $type['for'],
+                ],
                 $type
             );
         }
 
         // create extension categories
-        foreach($extensionCategories as $category) {
+        foreach ($extensionCategories as $category) {
             Category::firstOrCreate(
                 [
                     'name' => $category['name'],
-                    'for' => $category['for'],
-                ], 
+                    'for'  => $category['for'],
+                ],
                 $category
             );
         }

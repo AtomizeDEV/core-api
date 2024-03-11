@@ -1,6 +1,6 @@
 <?php
 
-namespace Fleetbase\Seeds;
+namespace Fleetbase\Seeders;
 
 use Fleetbase\Models\Permission;
 use Fleetbase\Models\Policy;
@@ -26,28 +26,28 @@ class PermissionSeeder extends Seeder
         $schemas = Utils::getAuthSchemas();
 
         foreach ($schemas as $schema) {
-            $service = $schema->name;
-            $resources = $schema->resources ?? [];
+            $service     = $schema->name;
+            $resources   = $schema->resources ?? [];
             $permissions = $schema->permissions ?? null;
-            $guard = 'web';
+            $guard       = 'web';
 
             // first create a wilcard permission for the entire schema
             $administratorPolicy = Policy::firstOrCreate(
                 [
-                    'name' => 'AdministratorAccess',
-                    'guard_name' => $guard,
+                    'name'        => 'AdministratorAccess',
+                    'guard_name'  => $guard,
                     'description' => 'Provides full access to Fleetbase extensions and resources.',
                 ]
             );
 
             $permission = Permission::firstOrCreate(
                 [
-                    'name' => $service . ' *',
-                    'guard_name' => $guard
+                    'name'       => $service . ' *',
+                    'guard_name' => $guard,
                 ],
                 [
-                    'name' => $service . ' *',
-                    'guard_name' => $guard
+                    'name'       => $service . ' *',
+                    'guard_name' => $guard,
                 ]
             );
 
@@ -66,12 +66,12 @@ class PermissionSeeder extends Seeder
                 foreach ($permissions as $action) {
                     $permission = Permission::firstOrCreate(
                         [
-                            'name' => $service . ' ' . $action,
-                            'guard_name' => $guard
+                            'name'       => $service . ' ' . $action,
+                            'guard_name' => $guard,
                         ],
                         [
-                            'name' => $service . ' ' . $action,
-                            'guard_name' => $guard
+                            'name'       => $service . ' ' . $action,
+                            'guard_name' => $guard,
                         ]
                     );
 
@@ -90,26 +90,26 @@ class PermissionSeeder extends Seeder
             // create a resource policy for full access
             $fullAccessPolicy = Policy::firstOrCreate(
                 [
-                    'name' => Str::studly(data_get($schema, 'policyName')) . 'FullAccess',
-                    'guard_name' => $guard
+                    'name'       => Str::studly(data_get($schema, 'policyName')) . 'FullAccess',
+                    'guard_name' => $guard,
                 ],
                 [
-                    'name' => Str::studly(data_get($schema, 'policyName')) .  'FullAccess',
+                    'name'        => Str::studly(data_get($schema, 'policyName')) . 'FullAccess',
                     'description' => 'Provides full access to ' . Str::studly(data_get($schema, 'policyName')) . '.',
-                    'guard_name' => $guard
+                    'guard_name'  => $guard,
                 ]
             );
 
             // create a resource policy for read-only access
             $readOnlyPolicy = Policy::firstOrCreate(
                 [
-                    'name' => Str::studly(data_get($schema, 'policyName')) . 'FullAccess',
-                    'guard_name' => $guard
+                    'name'       => Str::studly(data_get($schema, 'policyName')) . 'FullAccess',
+                    'guard_name' => $guard,
                 ],
                 [
-                    'name' => Str::studly(data_get($schema, 'policyName')) . 'FullAccess',
+                    'name'        => Str::studly(data_get($schema, 'policyName')) . 'FullAccess',
                     'description' => 'Provides read-only access to ' . Str::studly(data_get($schema, 'policyName')) . '.',
-                    'guard_name' => $guard
+                    'guard_name'  => $guard,
                 ]
             );
 
@@ -118,37 +118,37 @@ class PermissionSeeder extends Seeder
                 // create a resource policy for full access
                 $resourceFullAccessPolicy = Policy::firstOrCreate(
                     [
-                        'name' => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
-                        'guard_name' => $guard
+                        'name'       => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
+                        'guard_name' => $guard,
                     ],
                     [
-                        'name' => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
+                        'name'        => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
                         'description' => 'Provides full access to ' . Str::studly(data_get($schema, 'policyName')) . ' ' . Str::plural(data_get($resource, 'name')) . '.',
-                        'guard_name' => $guard
+                        'guard_name'  => $guard,
                     ]
                 );
 
                 // create a resource policy for read-only access
                 $resourceReadOnlyPolicy = Policy::firstOrCreate(
                     [
-                        'name' => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
-                        'guard_name' => $guard
+                        'name'       => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
+                        'guard_name' => $guard,
                     ],
                     [
-                        'name' => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
+                        'name'        => Str::studly(data_get($schema, 'policyName')) . Str::studly(data_get($resource, 'name')) . 'FullAccess',
                         'description' => 'Provides read-only access to ' . Str::studly(data_get($schema, 'policyName')) . ' ' . Str::plural(data_get($resource, 'name')) . '.',
-                        'guard_name' => $guard
+                        'guard_name'  => $guard,
                     ]
                 );
 
                 $permission = Permission::firstOrCreate(
                     [
-                        'name' => $service . ' * ' . data_get($resource, 'name'),
-                        'guard_name' => $guard
+                        'name'       => $service . ' * ' . data_get($resource, 'name'),
+                        'guard_name' => $guard,
                     ],
                     [
-                        'name' => $service . ' * ' . data_get($resource, 'name'),
-                        'guard_name' => $guard
+                        'name'       => $service . ' * ' . data_get($resource, 'name'),
+                        'guard_name' => $guard,
                     ]
                 );
 
@@ -183,12 +183,12 @@ class PermissionSeeder extends Seeder
                 foreach ($resourceActions as $action) {
                     $permission = Permission::firstOrCreate(
                         [
-                            'name' => $service . ' ' . $action . ' ' . data_get($resource, 'name'),
-                            'guard_name' => $guard
+                            'name'       => $service . ' ' . $action . ' ' . data_get($resource, 'name'),
+                            'guard_name' => $guard,
                         ],
                         [
-                            'name' => $service . ' ' . $action . ' ' . data_get($resource, 'name'),
-                            'guard_name' => $guard
+                            'name'       => $service . ' ' . $action . ' ' . data_get($resource, 'name'),
+                            'guard_name' => $guard,
                         ]
                     );
 
@@ -216,10 +216,7 @@ class PermissionSeeder extends Seeder
     }
 
     /**
-     * Simple echo to output to CLI
-     *
-     * @param string $line
-     * @return void
+     * Simple echo to output to CLI.
      */
     public function output(string $line = ''): void
     {

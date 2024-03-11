@@ -1,10 +1,10 @@
 <?php
 
-namespace Fleetbase\Seeds;
+namespace Fleetbase\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class FleetbaseSeeder extends Seeder
+class RolesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,7 +13,5 @@ class FleetbaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(ExtensionSeeder::class);
-        $this->call(PermissionSeeder::class);
     }
 }
